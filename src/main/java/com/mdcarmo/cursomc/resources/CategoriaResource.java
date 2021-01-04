@@ -21,7 +21,6 @@ public class CategoriaResource {
 	public ResponseEntity<?> find(@PathVariable Integer id) {
 
 		Categoria cat = service.buscar(id);
-
 		return ResponseEntity.ok(cat);
 	}
 }
