@@ -10,9 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.mdcarmo.sprgbappbackend.domain.Cidade;
 import com.mdcarmo.sprgbappbackend.domain.Cliente;
+import com.mdcarmo.sprgbappbackend.domain.Endereco;
+import com.mdcarmo.sprgbappbackend.domain.enums.TipoCliente;
 import com.mdcarmo.sprgbappbackend.dto.ClienteDTO;
+import com.mdcarmo.sprgbappbackend.dto.ClienteNewDTO;
 import com.mdcarmo.sprgbappbackend.repositories.ClienteRepository;
+import com.mdcarmo.sprgbappbackend.repositories.EnderecoRepository;
 import com.mdcarmo.sprgbappbackend.services.exception.DataIntegrityException;
 import com.mdcarmo.sprgbappbackend.services.exception.ObjectNotFoundException;
 
@@ -21,6 +26,8 @@ public class ClienteService {
 
 	@Autowired
 	private ClienteRepository repo;
+	@Autowired
+	private EnderecoRepository enderecoRepository;
 
 	public Cliente find(Integer id) {
 		Optional<Cliente> cliente = repo.findById(id);
@@ -59,5 +66,25 @@ public class ClienteService {
 
 	public Cliente fromDTO(ClienteDTO dto) {
 		return new Cliente(dto.getId(), dto.getNome(), dto.getEmail(), null, null);
+	}
+
+	public Cliente fromDTO(ClienteNewDTO dto) {
+		Cliente cliente = new Cliente(null, dto.getNome(), dto.getEmail(),dto.getCpfOuCnpj() ,TipoCliente.toEnum(dto.getTipo()));
+		Cidade cidade = new Cidade(dto.getCidadeId(), null, null);
+		Endereco end = new Endereco(null, dto.getLogradouro(), dto.getNumero(), dto.getComplemento(), dto.getBairro(), dto.getCep(), cliente, cidade);
+		cliente.getEnderecos().add(end);
+		cliente.getTelefones().add(dto.getTelefone1());
+		if(dto.getTelefone2() != null)
+			cliente.getTelefones().add(dto.getTelefone2());
+		if(dto.getTelefone3() != null)
+			cliente.getTelefones().add(dto.getTelefone3());
+		return cliente;
+	}
+	
+	public Cliente insert(Cliente cliente) {
+		cliente.setId(null);
+		cliente = repo.save(cliente);
+		enderecoRepository.saveAll(cliente.getEnderecos());
+		return repo.save(cliente);
 	}
 }

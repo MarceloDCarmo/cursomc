@@ -1,5 +1,6 @@
 package com.mdcarmo.sprgbappbackend.resources;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,14 +12,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mdcarmo.sprgbappbackend.domain.Cliente;
 import com.mdcarmo.sprgbappbackend.dto.ClienteDTO;
+import com.mdcarmo.sprgbappbackend.dto.ClienteNewDTO;
 import com.mdcarmo.sprgbappbackend.services.ClienteService;
 
 @RestController
@@ -54,9 +58,9 @@ public class ClienteResource {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<Void> update(@Valid @RequestBody ClienteDTO catDto, @PathVariable Integer id) {
-		Cliente cat = service.fromDTO(catDto);
-		cat.setId(id);
-		cat = service.update(cat);
+		Cliente cliente = service.fromDTO(catDto);
+		cliente.setId(id);
+		cliente = service.update(cliente);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -64,5 +68,13 @@ public class ClienteResource {
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@PostMapping
+	public ResponseEntity<Void> insert(@Valid @RequestBody ClienteNewDTO clienteNewDto){
+		Cliente cliente = service.fromDTO(clienteNewDto);
+		cliente = service.insert(cliente);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cliente.getId()).toUri();
+		return ResponseEntity.created(uri).build();
 	}
 }
