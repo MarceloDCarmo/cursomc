@@ -1,5 +1,6 @@
 package com.mdcarmo.sprgbappbackend.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,5 +40,9 @@ public class CategoriaService {
 		} catch (DataIntegrityViolationException ex) {
 			throw new DataIntegrityException("Não é possível excluir Categorias que possuam produtos!");
 		}
+	}
+
+	public List<Categoria> findAll() {
+		return repo.findAll();
 	}
 }
