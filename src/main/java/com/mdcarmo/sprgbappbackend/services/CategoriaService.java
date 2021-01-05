@@ -21,22 +21,28 @@ public class CategoriaService {
 
 	@Autowired
 	private CategoriaRepository repo;
-	
+
 	public Categoria find(Integer id) {
 		Optional<Categoria> cat = repo.findById(id);
-		return cat.orElseThrow(() -> new ObjectNotFoundException("Objeto não econtrado! - Id: " + id + " - Tipo: " + Categoria.class.getName()));
+		return cat.orElseThrow(() -> new ObjectNotFoundException(
+				"Objeto não econtrado! - Id: " + id + " - Tipo: " + Categoria.class.getName()));
 	}
-	
+
 	public Categoria insert(Categoria cat) {
 		cat.setId(null);
 		return repo.save(cat);
 	}
-	
-	public Categoria update(Categoria cat) {
-		find(cat.getId());
-		return repo.save(cat);
+
+	public Categoria update(Categoria cliente) {
+		Categoria newCategoria = find(cliente.getId());
+		updateData(newCategoria, cliente);
+		return repo.save(newCategoria);
 	}
-	
+
+	private void updateData(Categoria newCategoria, Categoria cliente) {
+		newCategoria.setNome(cliente.getNome());
+	}
+
 	public void delete(Integer id) {
 		find(id);
 		try {
@@ -50,11 +56,11 @@ public class CategoriaService {
 		return repo.findAll();
 	}
 
-	public Page<Categoria> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
+	public Page<Categoria> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return repo.findAll(pageRequest);
 	}
-	
+
 	public Categoria fromDTO(CategoriaDTO dto) {
 		return new Categoria(dto.getId(), dto.getNome());
 	}
