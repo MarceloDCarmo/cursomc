@@ -40,10 +40,10 @@ public class ClienteResource {
 
 	@GetMapping
 	public ResponseEntity<List<ClienteDTO>> findAll() {
-		List<Cliente> categorias = service.findAll();
-		List<ClienteDTO> categoriasDTO = categorias.stream().map(cat -> new ClienteDTO(cat))
+		List<Cliente> clientes = service.findAll();
+		List<ClienteDTO> clientesDTO = clientes.stream().map(cat -> new ClienteDTO(cat))
 				.collect(Collectors.toList());
-		return ResponseEntity.ok(categoriasDTO);
+		return ResponseEntity.ok(clientesDTO);
 	}
 
 	@GetMapping("/page")
@@ -51,9 +51,9 @@ public class ClienteResource {
 			@RequestParam(value = "linesPerPage", defaultValue = "24") Integer linesPerPage,
 			@RequestParam(value = "orderBy", defaultValue = "nome") String orderBy,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction) {
-		Page<Cliente> categorias = service.findPage(page, linesPerPage, orderBy, direction);
-		Page<ClienteDTO> categoriasDTO = categorias.map(cat -> new ClienteDTO(cat));
-		return ResponseEntity.ok(categoriasDTO);
+		Page<Cliente> clientes = service.findPage(page, linesPerPage, orderBy, direction);
+		Page<ClienteDTO> clientesDTO = clientes.map(cat -> new ClienteDTO(cat));
+		return ResponseEntity.ok(clientesDTO);
 	}
 
 	@PutMapping("/{id}")
