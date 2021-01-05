@@ -3,10 +3,12 @@ package com.mdcarmo.sprgbappbackend.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.mdcarmo.sprgbappbackend.domain.Categoria;
 import com.mdcarmo.sprgbappbackend.repositories.CategoriaRepository;
+import com.mdcarmo.sprgbappbackend.services.exception.DataIntegrityException;
 import com.mdcarmo.sprgbappbackend.services.exception.ObjectNotFoundException;
 
 @Service
@@ -28,5 +30,14 @@ public class CategoriaService {
 	public Categoria update(Categoria cat) {
 		find(cat.getId());
 		return repo.save(cat);
+	}
+	
+	public void delete(Integer id) {
+		find(id);
+		try {
+			repo.deleteById(id);
+		} catch (DataIntegrityViolationException ex) {
+			throw new DataIntegrityException("Não é possível excluir Categorias que possuam produtos!");
+		}
 	}
 }
