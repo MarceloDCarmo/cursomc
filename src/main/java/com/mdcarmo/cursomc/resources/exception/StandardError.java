@@ -1,6 +1,9 @@
 package com.mdcarmo.cursomc.resources.exception;
 
 import java.io.Serializable;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class StandardError implements Serializable{
 
@@ -32,8 +35,9 @@ public class StandardError implements Serializable{
 		this.msg = msg;
 	}
 
-	public Long getTimeStamp() {
-		return timeStamp;
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+	public Date getTimeStamp() {
+		return new Date(timeStamp);
 	}
 
 	public void setTimeStamp(Long timeStamp) {
