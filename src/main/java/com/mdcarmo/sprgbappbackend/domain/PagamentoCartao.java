@@ -2,9 +2,11 @@ package com.mdcarmo.sprgbappbackend.domain;
 
 import javax.persistence.Entity;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.mdcarmo.sprgbappbackend.domain.enums.EstadoPagamento;
 
 @Entity
+@JsonTypeName("pagamentoCartao")
 public class PagamentoCartao extends Pagamento{
 
 	private static final long serialVersionUID = 1L;
