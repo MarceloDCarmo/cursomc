@@ -48,6 +48,7 @@ public class ClienteResource {
 		return ResponseEntity.ok(clientesDTO);
 	}
 
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/page")
 	public ResponseEntity<Page<ClienteDTO>> findPage(@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "24") Integer linesPerPage,

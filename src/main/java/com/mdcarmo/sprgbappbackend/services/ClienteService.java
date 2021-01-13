@@ -15,11 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mdcarmo.sprgbappbackend.domain.Cidade;
 import com.mdcarmo.sprgbappbackend.domain.Cliente;
 import com.mdcarmo.sprgbappbackend.domain.Endereco;
+import com.mdcarmo.sprgbappbackend.domain.enums.Perfil;
 import com.mdcarmo.sprgbappbackend.domain.enums.TipoCliente;
 import com.mdcarmo.sprgbappbackend.dto.ClienteDTO;
 import com.mdcarmo.sprgbappbackend.dto.ClienteNewDTO;
 import com.mdcarmo.sprgbappbackend.repositories.ClienteRepository;
 import com.mdcarmo.sprgbappbackend.repositories.EnderecoRepository;
+import com.mdcarmo.sprgbappbackend.security.UserSS;
+import com.mdcarmo.sprgbappbackend.services.exception.AuthorizationException;
 import com.mdcarmo.sprgbappbackend.services.exception.DataIntegrityException;
 import com.mdcarmo.sprgbappbackend.services.exception.ObjectNotFoundException;
 
@@ -34,6 +37,12 @@ public class ClienteService {
 	private BCryptPasswordEncoder pe;
 
 	public Cliente find(Integer id) {
+		
+		UserSS user = UserService.authenticated();
+		if(user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		
 		Optional<Cliente> cliente = repo.findById(id);
 		return cliente.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não econtrado! - Id: " + id + " - Tipo: " + Cliente.class.getName()));
