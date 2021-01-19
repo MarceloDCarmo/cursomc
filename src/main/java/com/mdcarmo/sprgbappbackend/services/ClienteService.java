@@ -39,14 +39,14 @@ public class ClienteService {
 	private BCryptPasswordEncoder pe;
 	@Autowired
 	private S3Service s3Service;
-	
+
 	public Cliente find(Integer id) {
-		
+
 		UserSS user = UserService.authenticated();
-		if(user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
 			throw new AuthorizationException("Acesso negado");
 		}
-		
+
 		Optional<Cliente> cliente = repo.findById(id);
 		return cliente.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não econtrado! - Id: " + id + " - Tipo: " + Cliente.class.getName()));
@@ -86,18 +86,20 @@ public class ClienteService {
 	}
 
 	public Cliente fromDTO(ClienteNewDTO dto) {
-		Cliente cliente = new Cliente(null, dto.getNome(), dto.getEmail(),dto.getCpfOuCnpj() ,TipoCliente.toEnum(dto.getTipo()), pe.encode(dto.getSenha()));
+		Cliente cliente = new Cliente(null, dto.getNome(), dto.getEmail(), dto.getCpfOuCnpj(),
+				TipoCliente.toEnum(dto.getTipo()), pe.encode(dto.getSenha()));
 		Cidade cidade = new Cidade(dto.getCidadeId(), null, null);
-		Endereco end = new Endereco(null, dto.getLogradouro(), dto.getNumero(), dto.getComplemento(), dto.getBairro(), dto.getCep(), cliente, cidade);
+		Endereco end = new Endereco(null, dto.getLogradouro(), dto.getNumero(), dto.getComplemento(), dto.getBairro(),
+				dto.getCep(), cliente, cidade);
 		cliente.getEnderecos().add(end);
 		cliente.getTelefones().add(dto.getTelefone1());
-		if(dto.getTelefone2() != null)
+		if (dto.getTelefone2() != null)
 			cliente.getTelefones().add(dto.getTelefone2());
-		if(dto.getTelefone3() != null)
+		if (dto.getTelefone3() != null)
 			cliente.getTelefones().add(dto.getTelefone3());
 		return cliente;
 	}
-	
+
 	@Transactional
 	public Cliente insert(Cliente cliente) {
 		cliente.setId(null);
@@ -105,8 +107,15 @@ public class ClienteService {
 		enderecoRepository.saveAll(cliente.getEnderecos());
 		return repo.save(cliente);
 	}
-	
+
 	public URI uploadProfilePicture(MultipartFile file) {
+		UserSS user = UserService.authenticated();
+
+		Cliente cliente = repo.findById(user.getId()).orElseThrow(() -> new AuthorizationException("Acesso negado!"));
+		URI uri = s3Service.uploadFile(file);
+		cliente.setImgUrl(uri.toString());
+		repo.save(cliente);
+		
 		return s3Service.uploadFile(file);
 	}
 }
